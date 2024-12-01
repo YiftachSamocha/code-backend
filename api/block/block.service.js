@@ -86,14 +86,12 @@ async function add(block) {
 }
 
 async function update(block) {
-    const blockToSave = { vendor: block.vendor, speed: block.speed }
-
+    const blockToSave = { ...block }
+	delete blockToSave._id
     try {
         const criteria = { _id: ObjectId.createFromHexString(block._id) }
-
 		const collection = await dbService.getCollection('block')
 		await collection.updateOne(criteria, { $set: blockToSave })
-
 		return block
 	} catch (err) {
 		logger.error(`cannot update block ${block._id}`, err)

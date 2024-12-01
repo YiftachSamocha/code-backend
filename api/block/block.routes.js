@@ -13,7 +13,7 @@ const router = express.Router()
 router.get('/', getBlocks)
 router.get('/:id', getBlockById)
 router.post('/', addBlock)
-router.put('/:id', updateBlock)
+router.put('/', updateBlock)
 router.delete('/:id', removeBlock)
 // router.delete('/:id', requireAuth, requireAdmin, removeBlock)
 
