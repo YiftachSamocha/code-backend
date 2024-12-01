@@ -13,14 +13,15 @@ export function setupSocketAPI(http) {
         logger.info(`New connected socket [id: ${socket.id}]`)
         if (gIo.sockets.sockets.size === 1 && !socket.isMentor) socket.isMentor = true
         socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor })
+        gIo.emit('set-users-amount', gIo.sockets.sockets.size)
 
         socket.on('disconnect', socket => {
             logger.info(`Socket disconnected [id: ${socket.id}]`)
+            gIo.emit('set-users-amount', gIo.sockets.sockets.size)
         })
 
         socket.on('set-block-type', blockType => {
             if (socket.blockType === blockType) return
-            if (!socket.isMentor) return
             if (socket.blockType) {
                 socket.leave(socket.blockType)
                 logger.info(`Socket is leaving block type ${socket.blockType} [id: ${socket.id}]`)
@@ -32,6 +33,7 @@ export function setupSocketAPI(http) {
         })
 
         socket.on('edit-block', content => {
+            console.log(`content: ${content}, type: ${socket.blockType}`)
             logger.info(`Socket [id: ${socket.id}] edited block type ${socket.blockType}`)
             gIo.to(socket.blockType).emit('block-edited', content)
         })
