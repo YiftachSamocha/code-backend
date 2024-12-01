@@ -20,6 +20,7 @@ export function setupSocketAPI(http) {
 
         socket.on('set-block-type', blockType => {
             if (socket.blockType === blockType) return
+            if (!socket.isMentor) return
             if (socket.blockType) {
                 socket.leave(socket.blockType)
                 logger.info(`Socket is leaving block type ${socket.blockType} [id: ${socket.id}]`)
@@ -27,6 +28,7 @@ export function setupSocketAPI(http) {
             socket.join(blockType)
             socket.blockType = blockType
             logger.info(`Socket is joining block type ${socket.blockType} [id: ${socket.id}]`)
+            gIo.emit('block-type-chosen', blockType)
         })
 
         socket.on('edit-block', content => {
@@ -34,25 +36,6 @@ export function setupSocketAPI(http) {
             gIo.to(socket.blockType).emit('block-edited', content)
         })
 
-        socket.on('mentor-leaves-block', () => {
-            logger.info(`Socket mentor [id: ${socket.id}] left block type ${socket.blockType}`)
-            gIo.to(socket.blockType).emit('mentor-left-block')
-        })
-
-
-
-        // socket.on('user-watch', userId => {
-        //     logger.info(`user-watch from socket [id: ${socket.id}], on user ${userId}`)
-        //     socket.join('watching:' + userId)
-        // })
-        // socket.on('set-user-socket', userId => {
-        //     logger.info(`Setting socket.userId = ${userId} for socket [id: ${socket.id}]`)
-        //     socket.userId = userId
-        // })
-        // socket.on('unset-user-socket', () => {
-        //     logger.info(`Removing socket.userId for socket [id: ${socket.id}]`)
-        //     delete socket.userId
-        // })
 
     })
 }
