@@ -11,6 +11,9 @@ export function setupSocketAPI(http) {
     })
     gIo.on('connection', socket => {
         logger.info(`New connected socket [id: ${socket.id}]`)
+        if (gIo.sockets.sockets.size === 1 && !socket.isMentor) socket.isMentor = true
+        socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor })
+
         socket.on('disconnect', socket => {
             logger.info(`Socket disconnected [id: ${socket.id}]`)
         })
@@ -51,7 +54,8 @@ function emitTo({ type, data, label }) {
     else gIo.emit(type, data)
 }
 
-async function emitToUser({ type, data, userId }) {
+async function emitToUser(type, data, userId) {
+    console.log(type, data, userId)
     userId = userId.toString()
     const socket = await _getUserSocket(userId)
 
