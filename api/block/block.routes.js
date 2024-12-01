@@ -3,7 +3,7 @@ import express from 'express'
 import { requireAuth } from '../../middlewares/requireAuth.middleware.js'
 import { log } from '../../middlewares/logger.middleware.js'
 
-import { getBlocks, getBlockById, addBlock, updateBlock, removeBlock, addBlockMsg, removeBlockMsg } from './block.controller.js'
+import { getBlocks, getBlockByType, addBlock, updateBlock, removeBlock, addBlockMsg, removeBlockMsg } from './block.controller.js'
 
 const router = express.Router()
 
@@ -11,7 +11,7 @@ const router = express.Router()
 // router.use(requireAuth)
 
 router.get('/', getBlocks)
-router.get('/:id', getBlockById)
+router.get('/:type', getBlockByType)
 router.post('/', addBlock)
 router.put('/', updateBlock)
 router.delete('/:id', removeBlock)
