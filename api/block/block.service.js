@@ -83,6 +83,7 @@ async function add(block) {
 async function update(block) {
 	const blockToSave = { ...block }
 	delete blockToSave._id
+	console.log(block)
 	try {
 		const criteria = { _id: ObjectId.createFromHexString(block._id) }
 		const collection = await dbService.getCollection('block')

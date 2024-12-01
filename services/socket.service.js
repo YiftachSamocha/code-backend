@@ -28,10 +28,18 @@ export function setupSocketAPI(http) {
             socket.blockType = blockType
             logger.info(`Socket is joining block type ${socket.blockType} [id: ${socket.id}]`)
         })
+
         socket.on('edit-block', content => {
             logger.info(`Socket [id: ${socket.id}] edited block type ${socket.blockType}`)
             gIo.to(socket.blockType).emit('block-edited', content)
         })
+
+        socket.on('mentor-leaves-block', () => {
+            logger.info(`Socket mentor [id: ${socket.id}] left block type ${socket.blockType}`)
+            gIo.to(socket.blockType).emit('mentor-left-block')
+        })
+
+
 
         // socket.on('user-watch', userId => {
         //     logger.info(`user-watch from socket [id: ${socket.id}], on user ${userId}`)
