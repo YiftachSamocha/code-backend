@@ -35,11 +35,23 @@ export function setupSocketAPI(http) {
         })
 
         socket.on('edit-block', content => {
-            console.log(`content: ${content}, type: ${socket.blockType}`)
             logger.info(`Socket [id: ${socket.id}] edited block type ${socket.blockType}`)
             gIo.to(socket.blockType).emit('block-edited', content)
         })
 
+        socket.on('send-question', question => {
+            logger.info(`Socket [id: ${socket.id}] asked question: ${question.content}`)
+            if (mentorSocket) {
+                mentorSocket.emit('get-question', { ...question, userId: socket.id })
+            }
+        })
+
+        socket.on('send-answer', answer => {
+            logger.info(`Socket [id: ${socket.id}] (mentor) answered a question: ${answer.content}`)
+            console.log(answer)
+            emitToUser('get-answer', answer, answer.askerId)
+
+        })
 
     })
 }
@@ -85,9 +97,9 @@ async function broadcast({ type, data, room = null, userId }) {
     }
 }
 
-async function _getUserSocket(userId) {
+async function _getUserSocket(id) {
     const sockets = await _getAllSockets()
-    const socket = sockets.find(s => s.userId === userId)
+    const socket = sockets.find(s => s.id === id)
     return socket
 }
 async function _getAllSockets() {
