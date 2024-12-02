@@ -13,6 +13,8 @@ export function setupSocketAPI(http) {
         logger.info(`New connected socket [id: ${socket.id}]`)
         if (gIo.sockets.sockets.size === 1 && !socket.isMentor) socket.isMentor = true
         socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor })
+        const mentorSocket = Array.from(gIo.sockets.sockets.values()).find(sock => sock.isMentor)
+        socket.emit('block-type-chosen', mentorSocket.blockType)
         gIo.emit('set-users-amount', gIo.sockets.sockets.size)
 
         socket.on('disconnect', socket => {

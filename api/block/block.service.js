@@ -37,6 +37,7 @@ async function query(filterBy = { txt: '' }) {
 
 async function getByType(blockType) {
 	try {
+		if (blockType === null || blockType === 'null') return null
 		const criteria = { type: blockType }
 		const collection = await dbService.getCollection('block')
 		let block = await collection.findOne(criteria)
@@ -99,8 +100,34 @@ async function createData(type) {
 	let blockToInsert = { type }
 	switch (type) {
 		case 'async':
-			blockToInsert.content = 'ppp'
-			blockToInsert.solution = 'aaa'
+			blockToInsert.content = `const fetchUsers = async () =>[{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+const fetchComments = async (userId) => (userId === 1 ? ['A', 'B'] : ['X', 'Y', 'Z']);
+
+// Your function
+async function getUserComments() {
+// Implement this function
+}
+
+getUserComments().then(console.log);
+// Expected: [{ name: 'Alice', commentCount: 2 }, { name: 'Bob', commentCount: 3 }]`
+			blockToInsert.challenge =
+				`Challenge: Fetch User Comments
+			Fetch a list of users and their respective comments from APIs.
+			For each user, return an object containing their name and the total number of comments they have.`
+
+			blockToInsert.solution =
+				`async function getUserComments() {
+              const users = await fetchUsers();
+              return Promise.all(
+                  users.map(async (user) => {
+                      const comments = await fetchComments(user.id);
+                      return { name: user.name, commentCount: comments.length };
+                  })
+               );
+            }
+
+            getUserComments().then(console.log);
+            // Output: [{ name: 'Alice', commentCount: 2 }, { name: 'Bob', commentCount: 3 }]`
 			break
 		case 'dom':
 			blockToInsert.content = 'ppp'

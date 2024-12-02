@@ -40,13 +40,6 @@ export async function addBlock(req, res) {
 
 export async function updateBlock(req, res) {
 	const { body: block } = req
-	// const { _id: userId, isAdmin } = loggedinUser
-
-	// if(!isAdmin && block.owner._id !== userId) {
-	//     res.status(403).send('Not your block...')
-	//     return
-	// }
-
 	try {
 		const updatedBlock = await blockService.update(block)
 		res.json(updatedBlock)
