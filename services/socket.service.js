@@ -56,7 +56,7 @@ export function setupSocketAPI(http) {
                 socket.emit('set-users-amount', gIo.sockets.sockets.size);
                 socket.emit('bad-connection', mentorBlockType)
             }
-        });
+        })
 
         socket.on('edit-block', content => {
             logger.info(`Socket [id: ${socket.id}] edited block type ${socket.blockType}`)

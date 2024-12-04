@@ -1,11 +1,11 @@
 import { ObjectId } from 'mongodb'
 import { logger } from '../../services/logger.service.js'
 import { dbService } from '../../services/db.service.js'
-import { createData } from '../../services/block.data.js'
+import data from '../../data/block.data.json' assert { type: 'json' };
+
 
 export const blockService = {
 	getByType,
-	add,
 	update,
 }
 
@@ -16,8 +16,8 @@ async function getByType(blockType) {
 		const collection = await dbService.getCollection('block')
 		let block = await collection.findOne(criteria)
 		if (!block) {
-			const newBlock = createData(blockType)
-			block = await add(newBlock)
+			await _createData()
+			block = await collection.findOne(criteria)
 		}
 		return block
 	} catch (err) {
@@ -41,13 +41,7 @@ async function update(block) {
 	}
 }
 
-async function add(block) {
-	try {
-		const collection = await dbService.getCollection('block')
-		await collection.insertOne(block)
-		return block
-	} catch (err) {
-		logger.error('cannot insert block', err)
-		throw err
-	}
+async function _createData() {
+	const collection = await dbService.getCollection('block')
+	await collection.insertMany(data)
 }
