@@ -1,5 +1,7 @@
 # CodeSync - BackEnd - A Real-Time Code Mentoring Platform
 
+<img src="public/img/code-icon.png"  width="250"  />
+
 The backend of this application is built with **Node.js** and utilizes **MongoDB** for persistent data storage. It also integrates **Socket.IO** to enable real-time communication between users and mentors. The system is designed to efficiently handle dynamic interactions, such as updating blocks and managing real-time messaging, while ensuring smooth data management.
 
 #### 1. **Block Service**
