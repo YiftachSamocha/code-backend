@@ -1,6 +1,7 @@
 import { logger } from '../../services/logger.service.js'
 import { blockService } from './block.service.js'
 
+// Extracts the block type from the request parameter and fetches a block by that type 
 export async function getBlockByType(req, res) {
 	try {
 		const blockType = req.params.type
@@ -12,6 +13,7 @@ export async function getBlockByType(req, res) {
 	}
 }
 
+// Extracts the block data from the request body (the sent data) and updates the block 
 export async function updateBlock(req, res) {
 	const { body: block } = req
 	try {
