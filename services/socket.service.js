@@ -12,7 +12,6 @@ export function setupSocketAPI(http) {
     gIo.on('connection', socket => {
         logger.info(`New connected socket [id: ${socket.id}]`)
         if (gIo.sockets.sockets.size === 1 && !socket.isMentor) socket.isMentor = true
-        socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor })
         var mentorSocket = Array.from(gIo.sockets.sockets.values()).find(sock => sock.isMentor)
         gIo.emit('set-users-amount', gIo.sockets.sockets.size)
 
@@ -45,17 +44,28 @@ export function setupSocketAPI(http) {
 
             // Emit block type changes
             if (isMentor) {
+                logger.info(`Socket id (mentor): ${socket.id} block type is ${type}`)
                 gIo.emit('set-block-type', type);
             } else {
+                logger.info(`Socket id: ${socket.id} block type is ${mentorBlockType}`)
                 socket.emit('set-block-type', mentorBlockType);
             }
 
-            // Handle bad user connection
+            // Handle user bad connection
             if (isBadConnection) {
-                socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor });
-                socket.emit('set-users-amount', gIo.sockets.sockets.size);
                 socket.emit('bad-connection', mentorBlockType)
             }
+        })
+
+        socket.on('get-curr-user', () => {
+            logger.info(`Get curr user socket: ${socket.id}`)
+            socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor })
+
+        })
+
+        socket.on('get-users-amount',()=>{
+            logger.info(`Get users amount: ${gIo.sockets.sockets.size}`)
+            socket.emit('set-users-amount', gIo.sockets.sockets.size)
         })
 
         socket.on('edit-block', content => {
