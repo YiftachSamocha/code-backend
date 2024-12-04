@@ -1,7 +1,11 @@
 import { ObjectId } from 'mongodb'
 import { logger } from '../../services/logger.service.js'
 import { dbService } from '../../services/db.service.js'
-import data from '../../data/block.data.json' assert { type: 'json' };
+import fs from 'fs';
+import path from 'path';
+
+const DATA = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../data/block.data.json'), 'utf-8'));
+
 
 
 export const blockService = {
@@ -43,5 +47,5 @@ async function update(block) {
 
 async function _createData() {
 	const collection = await dbService.getCollection('block')
-	await collection.insertMany(data)
+	await collection.insertMany(DATA)
 }
