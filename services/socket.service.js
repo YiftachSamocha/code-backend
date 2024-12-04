@@ -70,7 +70,7 @@ export function setupSocketAPI(http) {
 
         socket.on('edit-block', content => {
             logger.info(`Socket [id: ${socket.id}] edited block type ${socket.blockType}`)
-            gIo.to(socket.blockType).emit('block-edited', content)
+            _broadcast('block-edited', content, socket.blockType, socket.id)
         })
 
         socket.on('send-question', question => {
@@ -113,6 +113,26 @@ async function _getAllSockets() {
     // return all Socket instances
     const sockets = await gIo.fetchSockets()
     return sockets
+}
+
+async function _broadcast( type, data, room = null, userId ) {
+    userId = userId.toString()
+
+    logger.info(`Broadcasting event: ${type}`)
+    const excludedSocket = await _getUserSocket(userId)
+    if (room && excludedSocket) {
+        logger.info(`Broadcast to room ${room} excluding user: ${userId}`)
+        excludedSocket.broadcast.to(room).emit(type, data)
+    } else if (excludedSocket) {
+        logger.info(`Broadcast to all excluding user: ${userId}`)
+        excludedSocket.broadcast.emit(type, data)
+    } else if (room) {
+        logger.info(`Emit to room: ${room}`)
+        gIo.to(room).emit(type, data)
+    } else {
+        logger.info(`Emit to all`)
+        gIo.emit(type, data)
+    }
 }
 
 
