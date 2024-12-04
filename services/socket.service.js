@@ -13,8 +13,7 @@ export function setupSocketAPI(http) {
         logger.info(`New connected socket [id: ${socket.id}]`)
         if (gIo.sockets.sockets.size === 1 && !socket.isMentor) socket.isMentor = true
         socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor })
-        const mentorSocket = Array.from(gIo.sockets.sockets.values()).find(sock => sock.isMentor)
-        if (mentorSocket) socket.emit('block-type-chosen', mentorSocket.blockType)
+        var mentorSocket = Array.from(gIo.sockets.sockets.values()).find(sock => sock.isMentor)
         gIo.emit('set-users-amount', gIo.sockets.sockets.size)
 
         socket.on('disconnect', socket => {
@@ -22,17 +21,42 @@ export function setupSocketAPI(http) {
             gIo.emit('set-users-amount', gIo.sockets.sockets.size)
         })
 
-        socket.on('set-block-type', blockType => {
-            if (socket.blockType === blockType) return
-            if (socket.blockType) {
-                socket.leave(socket.blockType)
-                logger.info(`Socket is leaving block type ${socket.blockType} [id: ${socket.id}]`)
+        socket.on('get-block-type', type => {
+            // Leave the previous blockType room if it exists
+            if (socket.blockType) socket.leave(socket.blockType);
+
+            // Initialize variables
+            const isMentor = socket.id === mentorSocket.id;
+            const mentorBlockType = mentorSocket.blockType;
+            let isBadConnection = false;
+
+            // Determine the blockType for the socket
+            if (isMentor) {
+                socket.blockType = type;
+            } else if (type && type !== mentorBlockType) {
+                socket.blockType = null;
+                isBadConnection = true;
+            } else {
+                socket.blockType = type;
             }
-            socket.join(blockType)
-            socket.blockType = blockType
-            logger.info(`Socket is joining block type ${socket.blockType} [id: ${socket.id}]`)
-            gIo.emit('block-type-chosen', blockType)
-        })
+
+            // Join the new blockType room
+            if (socket.blockType) socket.join(socket.blockType);
+
+            // Emit block type changes
+            if (isMentor) {
+                gIo.emit('set-block-type', type);
+            } else {
+                socket.emit('set-block-type', mentorBlockType);
+            }
+
+            // Handle bad user connection
+            if (isBadConnection) {
+                socket.emit('set-curr-user', { id: socket.id, isMentor: socket.isMentor });
+                socket.emit('set-users-amount', gIo.sockets.sockets.size);
+                socket.emit('bad-connection', mentorBlockType)
+            }
+        });
 
         socket.on('edit-block', content => {
             logger.info(`Socket [id: ${socket.id}] edited block type ${socket.blockType}`)
@@ -48,10 +72,11 @@ export function setupSocketAPI(http) {
 
         socket.on('send-answer', answer => {
             logger.info(`Socket [id: ${socket.id}] (mentor) answered a question: ${answer.content}`)
-            console.log(answer)
             _emitToUser('get-answer', answer, answer.askerId)
 
         })
+
+
 
     })
 }
